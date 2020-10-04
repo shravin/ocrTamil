@@ -2,3 +2,4 @@ google-cloud-vision
 Open-Tamil
 python-docx
 pillow
+natsort

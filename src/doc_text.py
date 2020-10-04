@@ -31,7 +31,7 @@ def draw_boxes(image, bounds, color):
 
         min_x = min([bound.vertices[0].x, bound.vertices[1].x, bound.vertices[2].x, bound.vertices[3].x])
         min_y = min([bound.vertices[0].y, bound.vertices[1].y, bound.vertices[2].y, bound.vertices[3].y])
-        draw.text((min_x, min_y), "{}".format(counter), font=fnt, fill=(255, 0, 0, 0))
+        draw.text((min_x, min_y), "{}".format(counter), font=fnt, fill='blue')
 
         draw.polygon([
             bound.vertices[0].x, bound.vertices[0].y,
@@ -88,6 +88,6 @@ def render_doc_text(filein, fileout):
     # print(texts[0].description)
     new_image = draw_boxes(image, bounds, 'yellow')
     print("Ref File Name: ", fileout)
-    new_image.save(fileout)
+    new_image.save(fileout, optimize=True, quality=90)
 
     return texts

@@ -1,18 +1,13 @@
 import os
 import traceback
-from src.detect_text import detect_text
 
+from src.combine import combineDocsFromDir
 from docx import Document
-from docx.shared import Inches
-
-
-# texts = detect_text("/home/ubuntu/ocrTamil/images/First.jpg")
-
-# print(texts[0].description)
 from src.doc_text import render_doc_text
+from src.utils import is_file_dir_present
 
 
-def main(image_dir, doc_dir, ref_dir):
+def main(image_dir, doc_dir, ref_dir, combined_filename):
     file_list = os.listdir(image_dir)
     counter = 0
     total_files = len(file_list)
@@ -43,15 +38,14 @@ def main(image_dir, doc_dir, ref_dir):
             doc_page.add_run(ocr_text)
             document.add_page_break()
             document.save(doc_file_name)
+
         except Exception as e:
             print("Error in processing for filename: {}".format(file_name))
             traceback.print_exc()
             print(e)
             pass
 
-
-def is_file_dir_present(path):
-    return os.path.exists(path)
+    combineDocsFromDir(doc_dir, combined_filename)
 
 
 if __name__ == "__main__":
@@ -64,19 +58,22 @@ if __name__ == "__main__":
                         help='the path to output doc dir after OCR')
     parser.add_argument('--reference_imgdir', metavar='path', required=True,
                         help='the path to output reference image dir after OCR')
+    parser.add_argument('--combined_filename', metavar='path', required=False,
+                        help='the filename of the single file name')
 
     args = parser.parse_args()
 
     image_dir = args.input_imagedir
     doc_dir = args.output_docdir
     reference_imgdir = args.reference_imgdir
+    combined_filename = args.combined_filename
 
     image_dir_present = is_file_dir_present(image_dir)
     doc_dir_present = is_file_dir_present(doc_dir)
     reference_imgdir_present = is_file_dir_present(reference_imgdir)
 
     if doc_dir_present and image_dir_present and reference_imgdir_present:
-        main(image_dir=image_dir, doc_dir=doc_dir, ref_dir=reference_imgdir)
+        main(image_dir=image_dir, doc_dir=doc_dir, ref_dir=reference_imgdir, combined_filename=combined_filename)
     else:
         print("Program exits without doing anything as requisite dirs are not present. The program expects "
               "the dirs to be present")
