@@ -38,11 +38,6 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
                 print("Skipping processing file: {} as the file {} is present.".format(file_name, doc_file_name))
                 continue
 
-            # texts = detect_text(input_file_with_path)
-            # print(texts)
-            # ocr_text = texts[0].description
-            # ocr_text = "Ravin is great!!!"
-
             texts, full_text_annotation = render_doc_text(input_file_with_path, annotated_file_name)
             ocr_text = texts[0].description
 
@@ -61,7 +56,7 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
             print(e)
             pass
 
-    # combineDocsFromDir(doc_dir, combined_filename)
+    combineDocsFromDir(doc_dir, combined_filename)
 
 
 if __name__ == "__main__":
