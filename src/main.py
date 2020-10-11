@@ -37,8 +37,6 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
             formatted_doc_file_name = "{}/{}{}{}".format(doc_dir, FORMATTED_FILE_PREFIX, file_name_without_extension,
                                                          DOCX_FILE_EXTENSION)
             doc_file_name = "{}/{}{}".format(doc_dir, file_name_without_extension, DOCX_FILE_EXTENSION)
-            annotated_file_name = "{}/{}{}{}".format(ref_dir, ANNOTATED_FILE_PREFIX, file_name_without_extension,
-                                                     PNG_FILE_EXTENSION)
 
             if is_file_dir_present(doc_file_name):
                 print("Skipping processing file: {} as the file {} is present.".format(file_name, doc_file_name))
@@ -49,8 +47,8 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
 
             write_doc_without_formatting(doc_file_name, file_name_without_extension, ocr_text)
             write_formatted_document(full_text_annotation, file_name_without_extension, formatted_doc_file_name)
-            write_annotated_image(image, full_text_annotation, FeatureType.WORD, ref_dir, file_name_without_extension)
-            write_annotated_image(image, full_text_annotation, FeatureType.PARA, ref_dir, file_name_without_extension)
+            write_annotated_image(image.copy(), full_text_annotation, FeatureType.WORD, ref_dir, file_name_without_extension)
+            write_annotated_image(image.copy(), full_text_annotation, FeatureType.PARA, ref_dir, file_name_without_extension)
 
         except Exception as e:
             print("Error in processing for filename: {}".format(file_name))
