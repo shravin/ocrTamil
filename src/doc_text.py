@@ -6,6 +6,8 @@ from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
 
+from src.constants import ANNOTATED_FILE_PREFIX, PNG_FILE_EXTENSION
+
 
 class FeatureType(Enum):
     PAGE = 1
@@ -44,12 +46,10 @@ def draw_boxes(image, bounds, color):
     return new_image
 
 
-def get_document_properties(image_file, feature):
+def get_document_properties(image_file):
     """Returns full_text_annotation bounds given an image."""
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/ubuntu/ocrTamil/secrets/gkey.json"
     client = vision.ImageAnnotatorClient()
-
-    bounds = []
 
     with io.open(image_file, 'rb') as image_file:
         content = image_file.read()
@@ -60,6 +60,12 @@ def get_document_properties(image_file, feature):
     full_text_annotation = response.full_text_annotation
     ocr_text = response.text_annotations
 
+    # The list `bounds` contains the coordinates of the bounding boxes.
+    return ocr_text, full_text_annotation
+
+
+def get_bounds(full_text_annotation, feature):
+    bounds = []
     # Collect specified feature bounds by enumerating all full_text_annotation features
     for page in full_text_annotation.pages:
         for block in page.blocks:
@@ -77,9 +83,7 @@ def get_document_properties(image_file, feature):
 
             if (feature == FeatureType.BLOCK):
                 bounds.append(block.bounding_box)
-
-    # The list `bounds` contains the coordinates of the bounding boxes.
-    return bounds, ocr_text, full_text_annotation
+    return bounds
 
 
 def get_document_paragraphs(full_text_annotation):
@@ -110,12 +114,17 @@ def get_document_paragraphs(full_text_annotation):
     return paragraphs, lines
 
 
-def render_doc_text(filein, fileout):
+def render_doc_text(filein):
     image = Image.open(filein).convert("RGBA")
-    bounds, texts, full_text_annotation  = get_document_properties(filein, FeatureType.WORD)
-    # print(texts[0].description)
-    new_image = draw_boxes(image, bounds, 'yellow')
-    print("Ref File Name: ", fileout)
-    new_image.save(fileout, optimize=True, quality=90)
+    texts, full_text_annotation  = get_document_properties(filein)
+    return texts, full_text_annotation, image
 
-    return texts, full_text_annotation
+
+def write_annotated_image(image, full_text_annotation, feature, ref_dir, file_name_without_extension):
+    feature_type = FeatureType(feature).name.lower()
+    fileout = "{}/{}{}{}{}".format(ref_dir, feature_type, ANNOTATED_FILE_PREFIX, file_name_without_extension,
+                                             PNG_FILE_EXTENSION)
+    word_bounds = get_bounds(full_text_annotation, feature)
+    new_image = draw_boxes(image, word_bounds, 'yellow')
+    print("Ref File Name: ", feature_type + fileout)
+    new_image.save(fileout, optimize=True, quality=90)
