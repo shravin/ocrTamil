@@ -7,11 +7,11 @@ from src.doc_text import render_doc_text, get_document_paragraphs
 from src.utils import is_file_dir_present
 
 
-def write_formatted_document(full_text_annotation, formatted_doc_file_name):
+def write_formatted_document(full_text_annotation, header_name, formatted_doc_file_name):
     print("Writing the formatted document with file name: {}".format(formatted_doc_file_name))
     paragraphs, lines = get_document_paragraphs(full_text_annotation)
     document = Document()
-    document.add_heading(formatted_doc_file_name, 0)
+    document.add_heading(header_name, 0)
 
     for para in paragraphs:
         doc_page = document.add_paragraph()
@@ -48,7 +48,7 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
             document.add_page_break()
             document.save(doc_file_name)
 
-            write_formatted_document(full_text_annotation, formatted_doc_file_name)
+            write_formatted_document(full_text_annotation, file_name_without_extension, formatted_doc_file_name)
 
         except Exception as e:
             print("Error in processing for filename: {}".format(file_name))
