@@ -44,8 +44,8 @@ def draw_boxes(image, bounds, color):
     return new_image
 
 
-def get_document_bounds(image_file, feature):
-    """Returns document bounds given an image."""
+def get_document_properties(image_file, feature):
+    """Returns full_text_annotation bounds given an image."""
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/ubuntu/ocrTamil/secrets/gkey.json"
     client = vision.ImageAnnotatorClient()
 
@@ -57,11 +57,11 @@ def get_document_bounds(image_file, feature):
     image = types.Image(content=content)
 
     response = client.document_text_detection(image=image)
-    document = response.full_text_annotation
+    full_text_annotation = response.full_text_annotation
     ocr_text = response.text_annotations
 
-    # Collect specified feature bounds by enumerating all document features
-    for page in document.pages:
+    # Collect specified feature bounds by enumerating all full_text_annotation features
+    for page in full_text_annotation.pages:
         for block in page.blocks:
             for paragraph in block.paragraphs:
                 for word in paragraph.words:
@@ -79,15 +79,43 @@ def get_document_bounds(image_file, feature):
                 bounds.append(block.bounding_box)
 
     # The list `bounds` contains the coordinates of the bounding boxes.
-    return bounds, ocr_text
+    return bounds, ocr_text, full_text_annotation
+
+
+def get_document_paragraphs(full_text_annotation):
+    """Returns document bounds given an image."""
+    breaks = vision.enums.TextAnnotation.DetectedBreak.BreakType
+    paragraphs = []
+    lines = []
+    for page in full_text_annotation.pages:
+        for block in page.blocks:
+            for paragraph in block.paragraphs:
+                para = ""
+                line = ""
+                for word in paragraph.words:
+                    for symbol in word.symbols:
+                        line += symbol.text
+                        if symbol.property.detected_break.type == breaks.SPACE:
+                            line += ' '
+                        if symbol.property.detected_break.type == breaks.EOL_SURE_SPACE:
+                            line += ' '
+                            lines.append(line)
+                            para += line
+                            line = ''
+                        if symbol.property.detected_break.type == breaks.LINE_BREAK:
+                            lines.append(line)
+                            para += line
+                            line = ''
+                paragraphs.append(para)
+    return paragraphs, lines
 
 
 def render_doc_text(filein, fileout):
     image = Image.open(filein).convert("RGBA")
-    bounds, texts  = get_document_bounds(filein, FeatureType.WORD)
+    bounds, texts, full_text_annotation  = get_document_properties(filein, FeatureType.WORD)
     # print(texts[0].description)
     new_image = draw_boxes(image, bounds, 'yellow')
     print("Ref File Name: ", fileout)
     new_image.save(fileout, optimize=True, quality=90)
 
-    return texts
+    return texts, full_text_annotation
