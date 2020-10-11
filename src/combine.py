@@ -2,6 +2,7 @@ import os
 from docx import Document
 from natsort import natsorted
 
+from src.constants import FORMATTED_FILE_PREFIX
 from src.utils import is_file_dir_present
 
 
@@ -11,12 +12,29 @@ def combineDocsFromDir(inputDirPath, combined_filename="combinedDoc.docx"):
     target_document = Document()
     sorted_filelist = natsorted(file_list)
     for file_name in sorted_filelist:
-        print("Combining file: {}".format(file_name))
-        source_document = Document("{}/{}".format(inputDirPath, file_name))
-        for paragraph in source_document.paragraphs:
-            text = paragraph.text
-            target_document.add_paragraph(text)
-        target_document.add_page_break()
+        if not file_name.startswith(FORMATTED_FILE_PREFIX):
+            print("Combining file: {}".format(file_name))
+            source_document = Document("{}/{}".format(inputDirPath, file_name))
+            for paragraph in source_document.paragraphs:
+                text = paragraph.text
+                target_document.add_paragraph(text)
+            target_document.add_page_break()
+    target_document.save("{}/{}".format(inputDirPath, combined_filename))
+
+
+def combineFormattedDocsFromDir(inputDirPath, combined_filename="combinedFormattedDoc.docx"):
+    print("Combining documents into a single file: ", combined_filename)
+    file_list = os.listdir(inputDirPath)
+    target_document = Document()
+    sorted_filelist = natsorted(file_list)
+    for file_name in sorted_filelist:
+        if file_name.startswith(FORMATTED_FILE_PREFIX):
+            print("Combining file: {}".format(file_name))
+            source_document = Document("{}/{}".format(inputDirPath, file_name))
+            for paragraph in source_document.paragraphs:
+                text = paragraph.text
+                target_document.add_paragraph(text)
+            target_document.add_page_break()
     target_document.save("{}/{}".format(inputDirPath, combined_filename))
 
 
