@@ -126,5 +126,5 @@ def write_annotated_image(image, full_text_annotation, feature, ref_dir, file_na
                                              PNG_FILE_EXTENSION)
     word_bounds = get_bounds(full_text_annotation, feature)
     new_image = draw_boxes(image, word_bounds, 'yellow')
-    print("Ref File Name: ", feature_type + fileout)
+    print("Ref File Name: ", fileout)
     new_image.save(fileout, optimize=True, quality=90)
