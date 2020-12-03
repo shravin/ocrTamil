@@ -45,9 +45,9 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
             texts, full_text_annotation, image = render_doc_text(input_file_with_path)
             ocr_text = texts[0].description
 
-            write_doc_without_formatting(doc_file_name, file_name_without_extension, ocr_text)
+            # write_doc_without_formatting(doc_file_name, file_name_without_extension, ocr_text)
             write_formatted_document(full_text_annotation, file_name_without_extension, formatted_doc_file_name)
-            write_annotated_image(image.copy(), full_text_annotation, FeatureType.WORD, ref_dir, file_name_without_extension)
+            # write_annotated_image(image.copy(), full_text_annotation, FeatureType.WORD, ref_dir, file_name_without_extension)
             write_annotated_image(image.copy(), full_text_annotation, FeatureType.PARA, ref_dir, file_name_without_extension)
 
         except Exception as e:
@@ -59,7 +59,7 @@ def main(image_dir, doc_dir, ref_dir, combined_filename):
     if combined_filename is None:
         combined_filename = "combinedDoc.docx"
 
-    combineDocsFromDir(doc_dir, combined_filename)
+    # combineDocsFromDir(doc_dir, combined_filename)
     combineFormattedDocsFromDir(doc_dir, "{}{}".format(FORMATTED_FILE_PREFIX, combined_filename))
 
 
